@@ -12,7 +12,8 @@ function BookForm() {
   const onSubmit = async (values) => {
     console.log(values);
     try {
-      await axios.post("/books", values);
+      const res = await axios.post("/books", values);
+      console.log(res);
     } catch (e) {
       console.log(e);
     }

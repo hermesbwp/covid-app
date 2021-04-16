@@ -1,11 +1,15 @@
 import React from "react";
-import Navbar from "../../components/Navbar";
+import NavBar from "../../components/Navbar";
+import BookList from "../../components/BookList";
+import Card from "../../components/Card";
 
 function Home() {
   return (
     <>
-      <Navbar />
-      <p>pagina home</p>
+      <NavBar />
+      <Card>
+        <BookList />
+      </Card>
     </>
   );
 }
