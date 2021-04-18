@@ -1,0 +1,61 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "json-server",
+      "author": "typicode"
+    },
+    {
+      "id": 2,
+      "title": "json-server1",
+      "author": "hermes"
+    },
+    {
+      "id": 3,
+      "title": "json-server2",
+      "author": "gabi"
+    }
+  ],
+  "books": [
+    {
+      "name": "Myra",
+      "birthDay": -23144400000,
+      "date": 1620907200000,
+      "id": 12
+    },
+    {
+      "name": "Débora Borba Prazim",
+      "birthDay": 725338800000,
+      "date": 1622224800000,
+      "id": 13
+    },
+    {
+      "name": "Roberto",
+      "birthDay": -848005200000,
+      "date": 1626285600000,
+      "id": 14
+    },
+    {
+      "name": "Gabriela",
+      "birthDay": 483159600000,
+      "date": 1618655400000,
+      "id": 15
+    },
+    {
+      "name": "hermes",
+      "birthDay": 1427943600000,
+      "date": 1618776000632,
+      "id": 16
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
+  ],
+  "profile": {
+    "name": "typicode"
+  }
+}

@@ -1,0 +1,14 @@
+.card{
+    margin-top: 50px;
+    width:80%;
+    margin-left:10%;
+    padding:2vh;
+}
+.header{
+    padding:2vh;
+    font-size: x-large;
+    font-weight: 200;
+    margin-bottom: 5vh;
+    width:fit-content;
+    background-color: rgb(180,180,180);
+}
