@@ -12,8 +12,8 @@ function BookForm() {
   const onSubmit = async (values) => {
     console.log(values);
     try {
-      const res = await axios.post("/books", values);
-      console.log(res);
+      const res = await axios.post("/book", values);
+      console.log(res.data);
     } catch (e) {
       console.log(e);
     }
@@ -54,7 +54,7 @@ function BookForm() {
                 id="birthDay"
                 {...field}
                 selected={value}
-                onChange={(val) => setFieldValue("birthDay", val.getTime())}
+                onChange={(val) => setFieldValue("birthDay", val)}
                 showMonthDropdown
                 showYearDropdown
               />
@@ -78,7 +78,7 @@ function BookForm() {
                 id="date"
                 {...field}
                 selected={value}
-                onChange={(val) => setFieldValue("date", val.getTime())}
+                onChange={(val) => setFieldValue("date", val)}
               />
             );
           }}
@@ -93,34 +93,3 @@ function BookForm() {
 }
 
 export default BookForm;
-
-/*
-<Columns>
-          <Columns.Column>
-            <Label>Nome:</Label>
-            <Control>
-              <Field name="name" type="text" />
-            </Control>
-          </Columns.Column>
-          <Columns.Column className="box_date">
-            <Label>Data de nascimento:</Label>
-            <Control>
-              <DatePicker
-                type="date"
-                selected={startDate}
-                className="blue-border"
-              />
-            </Control>
-          </Columns.Column>
-        </Columns>
-
-        <Columns>
-          <Columns.Column>Agendamento </Columns.Column>
-          <Columns.Column className="box_date">
-            <Label>Dia de vacinação:</Label>
-            <Control>
-              <DatePicker showTimeSelect className="blue-border" />
-            </Control>
-          </Columns.Column>
-        </Columns>
-*/

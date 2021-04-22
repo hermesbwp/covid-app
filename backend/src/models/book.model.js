@@ -2,13 +2,12 @@ const mongoose = require('mongoose');
 
 const BookShema = new mongoose.Schema({
     name: String,
-    birthDay: String,
-    date: String
-
+    birthDay: Date,
+    date: Date
 }, {
     timestamps: true
 });
 
 const BookModel = mongoose.model('book', BookShema);
 
-module.exports = BookModel;
+module.exports = { BookShema, BookModel };

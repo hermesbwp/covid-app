@@ -1,10 +1,12 @@
-const { request } = require('express');
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require('dotenv').config();
-const UserRouter = require('./routes/user.route');
 const BookRouter = require('./routes/book.route');
+const DayRouter = require('./routes/day.route');
+const PlannerRouter = require('./routes/planner.route');
+const morgan = require('morgan');
 
 const { MONGO_URL, HTTP_PORT } = process.env;
 
@@ -15,10 +17,13 @@ mongoose.connect(MONGO_URL, {
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.json())
+app.use(morgan("dev"));
 
-app.use('/api', UserRouter);
 app.use('/api', BookRouter);
+app.use('/api', DayRouter);
+app.use('/api', PlannerRouter);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Hello world', query: req.query });
