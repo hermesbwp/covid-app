@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const { PlannerShema } = require('./planner.model');
+const { TimeShema } = require('./time.model');
 
 const DayShema = new mongoose.Schema({
     day: String,
-    plannerList: [PlannerShema],
+    bookLimit: { type: Number, default: 0 },
 }, {
     timestamps: true
 });

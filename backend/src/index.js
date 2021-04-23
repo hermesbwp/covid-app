@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 const BookRouter = require('./routes/book.route');
 const DayRouter = require('./routes/day.route');
-const PlannerRouter = require('./routes/planner.route');
+const TimeRouter = require('./routes/time.route');
 const morgan = require('morgan');
 
 const { MONGO_URL, HTTP_PORT } = process.env;
@@ -23,7 +23,7 @@ app.use(morgan("dev"));
 
 app.use('/api', BookRouter);
 app.use('/api', DayRouter);
-app.use('/api', PlannerRouter);
+app.use('/api', TimeRouter);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Hello world', query: req.query });

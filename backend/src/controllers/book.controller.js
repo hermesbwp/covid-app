@@ -1,8 +1,20 @@
 const { BookModel } = require('../models/book.model');
-const { PlannerModel } = require('../models/planner.model');
+const { TimeModel } = require('../models/time.model');
 const DayModel = require('../models/day.model');
 
 class Book {
+    async deleteAll(req, res) {
+        try {
+            const books = await BookModel.find();
+            books.map((book) => {
+                book.remove();
+            })
+            res.send({ message: "todos registros deletados" })
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
     async getDays() {
         try {
             const days = await DayModel.find();
@@ -12,10 +24,10 @@ class Book {
             res.status(400).json({ message: "An unexpected error happend" });
         }
     }
-    async getPlanners() {
+    async getTime() {
         try {
-            const planners = await PlannerModel.find();
-            return planners;
+            const time = await TimeModel.find();
+            return time;
         } catch (e) {
             console.log(e.message);
             res.status(400).json({ message: "An unexpected error happend" });
@@ -52,29 +64,36 @@ class Book {
         }
         //procura no banco se esse dia já existe 
         const day = await DayModel.findOne({ day: body.date.toLocaleDateString() }).exec();
-        const planner = await PlannerModel.findOne({ date: body.date }).exec();
+        //procura se o horario ja existe no banco
+        const time = await TimeModel.findOne({ date: body.date }).exec();
 
         if (day) {
-            //numero limite de horarios por dia
-            if (day.plannerList.length < 20) {
+            //numero limite de vagas por dia
+            if (day.bookLimit < 20) {
                 //ainda não foi criado o horario especifico
-                if (planner == null) {
+                if (time == null) {
+                    const timeBody = {
+                        date: body.date,
+                    }
                     try {
-
-                        const planner = await PlannerModel.create(plannerBody);
+                        const time = await TimeModel.create(timeBody);
                         const book = await BookModel.create(body);
-                        planner.booksList.push(book);
-                        day.plannerList.push(planner);
+                        time.booksList.push(book);
+                        await time.save();
+                        day.bookLimit = day.bookLimit + 1;
+                        await day.save();
                         res.send({ day });
                     } catch (e) {
                         console.log(e);
                     }
                 } //limite de agendamentos por horario
-                else if (planner.booksList.length < 2) {
+                else if (time.booksList.length < 2) {
                     try {
                         const book = await BookModel.create(body);
-                        planner.booksList.push(book);
-                        day.plannerList.push(planner);
+                        time.booksList.push(book);
+                        await time.save();
+                        day.bookLimit = day.bookLimit + 1;
+                        await day.save();
                         res.send({ day });
                     } catch (e) {
                         console.log(e);
@@ -82,24 +101,25 @@ class Book {
                 } else {
                     res.send({ message: "horario cheio" });
                 }
-
+            } else {
+                res.send({ message: "This day is full" })
             }
-            res.send({ message: "This day is full" })
         }
         //caso o dia não exista o horario também não existe
         else {
             const dayBody = {
                 day: body.date.toLocaleDateString(),
+                bookLimit: 1
             }
-            const plannerBody = {
+            const timeBody = {
                 date: body.date,
             }
             try {
-                const planner = await PlannerModel.create(plannerBody);
+                const time = await TimeModel.create(timeBody);
                 const day = await DayModel.create(dayBody);
                 const book = await BookModel.create(body);
-                planner.booksList.push(book);
-                day.plannerList.push(planner);
+                time.booksList.push(book);
+                await time.save();
                 res.send({ day });
             } catch (e) {
                 console.log(e);
