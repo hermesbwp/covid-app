@@ -2,6 +2,9 @@ const { BookModel } = require('../models/book.model');
 const { TimeModel } = require('../models/time.model');
 const DayModel = require('../models/day.model');
 
+const ageToRetiree = 65;
+const bookDayLimit = 20;
+const timeDayLimit = 2;
 class Book {
     async deleteAll(req, res) {
         try {
@@ -56,76 +59,113 @@ class Book {
         }
     }
     async store(req, res) {
-        const { name, birthDay, date } = req.body;
-        const body = {
-            name: name,
-            birthDay: new Date(birthDay),
-            date: new Date(date)
+        //birthDay vem como a idade do usuario
+        const { name, date, birthDay } = req.body;
+        let isRetired = false;
+        //verificando se idoso
+        if (birthDay >= ageToRetiree) {
+            isRetired = true;
         }
-        //procura no banco se esse dia já existe 
-        const day = await DayModel.findOne({ day: body.date.toLocaleDateString() }).exec();
-        //procura se o horario ja existe no banco
-        const time = await TimeModel.findOne({ date: body.date }).exec();
-
-        if (day) {
-            //numero limite de vagas por dia
-            if (day.bookLimit < 20) {
+        const bodyBook = {
+            name: name,
+            date: new Date(date),
+            isRetired: isRetired,
+            isVaccinated: false
+        }
+        //procurando dia no banco
+        const day = await DayModel.findOne({ date: bodyBook.date.toLocaleDateString() }).exec()
+        //procurando o horario no banco
+        const time = await TimeModel.findOne({ date: bodyBook.date }).exec()
+        //caso exista o dia
+        if (day) {//numero limite de vagas por dia
+            if (day.qtdBook < bookDayLimit) {
                 //ainda não foi criado o horario especifico
                 if (time == null) {
                     const timeBody = {
-                        date: body.date,
+                        date: bodyBook.date,
                     }
                     try {
                         const time = await TimeModel.create(timeBody);
-                        const book = await BookModel.create(body);
+                        const book = await BookModel.create(bodyBook);
                         time.booksList.push(book);
                         await time.save();
-                        day.bookLimit = day.bookLimit + 1;
+                        day.qtdBook = day.qtdBook + 1;
                         await day.save();
                         res.send({ day });
                     } catch (e) {
                         console.log(e);
                     }
                 } //limite de agendamentos por horario
-                else if (time.booksList.length < 2) {
+                else if (time.booksList.length < timeDayLimit) {
                     try {
-                        const book = await BookModel.create(body);
+                        const book = await BookModel.create(bodyBook);
                         time.booksList.push(book);
                         await time.save();
-                        day.bookLimit = day.bookLimit + 1;
+                        day.qtdBook = day.qtdBook + 1;
                         await day.save();
                         res.send({ day });
                     } catch (e) {
                         console.log(e);
                     }
                 } else {
-                    res.send({ message: "horario cheio" });
+                    //se for idoso outra validação
+                    //verificar se os horarios estao ocupados por idosos
+                    if (isRetired) {
+                        //se no horario so tiverem idosos o idoso que se cadastrou por ultimo fica sem vaga
+                        if (time.booksList[0].isRetired && time.booksList[1].isRetired) {
+                            res.send({ message: "horario cheio" });
+                        } else {
+                            //nao preciso atualizar as contagens para o limite
+                            if (!time.booksList[0].isRetired) {
+                                const book_ = await BookModel.findById(time.booksList[0].id);
+                                await book_.remove();
+                                const book = await BookModel.create(bodyBook);
+                                //nao consigo tirar o agendamento da lista de agendamentos time
+                                time.booksList.push(book);
+                                await time.save()
+                                res.send({ book })
+                            } else {
+                                const book_ = await BookModel.findById(time.booksList[1].id);
+                                await book_.remove()
+                                const book = await BookModel.create(bodyBook);
+                                //nao consigo tirar o agendamento da lista de agendamentos time
+                                time.booksList.push(book);
+                                await time.save()
+                                res.send({ book })
+                            }
+                        }
+
+                    } else {
+                        res.send({ message: "horario cheio" });
+                    }
                 }
             } else {
                 res.send({ message: "This day is full" })
             }
-        }
-        //caso o dia não exista o horario também não existe
-        else {
+        } else {
             const dayBody = {
-                day: body.date.toLocaleDateString(),
+                date: bodyBook.date.toLocaleDateString(),
                 bookLimit: 1
             }
             const timeBody = {
-                date: body.date,
+                date: bodyBook.date,
             }
             try {
                 const time = await TimeModel.create(timeBody);
                 const day = await DayModel.create(dayBody);
-                const book = await BookModel.create(body);
+                const book = await BookModel.create(bodyBook);
                 time.booksList.push(book);
+                day.qtdBook = day.qtdBook + 1;
+                await day.save();
                 await time.save();
                 res.send({ day });
             } catch (e) {
                 console.log(e);
             }
         }
+
     }
+
     async update(req, res) {
         const { body, params: { id } } = req;
         const book = await BookModel.findByIdAndUpdate(id, body, { new: true })
@@ -148,5 +188,4 @@ class Book {
 }
 
 module.exports = new Book()
-
 

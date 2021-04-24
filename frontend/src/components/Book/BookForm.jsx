@@ -7,9 +7,17 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from "../../utils/api";
 
 function BookForm() {
-  const initialValues = { name: "", birthDay: null, date: null };
+  const initialValues = {
+    name: "",
+    birthDay: null,
+    date: null,
+    isRetired: null,
+    isVaccinated: false,
+  };
 
   const onSubmit = async (values) => {
+    const { name, date, birthDay } = values;
+    values.birthDay = getAge(birthDay);
     console.log(values);
     try {
       const res = await axios.post("/book", values);
@@ -18,6 +26,20 @@ function BookForm() {
       console.log(e);
     }
   };
+
+  const getAge = (time) => {
+    const today = new Date();
+    const birthDay = new Date(time);
+    const age = today.getUTCFullYear() - birthDay.getUTCFullYear();
+    if (birthDay.getMonth < today.getMonth()) {
+      return age;
+    } else if (birthDay.getMonth() === today.getMonth()) {
+      if (birthDay.getDay() < today.getDay()) {
+        return age;
+      } else return age - 1;
+    } else return age - 1;
+  };
+
   function validate(values) {
     const errors = {};
     if (!values.name) {
@@ -49,7 +71,7 @@ function BookForm() {
             return (
               <DatePicker
                 className="input"
-                dateFormat="dd/MMM/yy"
+                dateFormat="dd/MM/yyyy"
                 maxDate={new Date()}
                 id="birthDay"
                 {...field}
@@ -70,7 +92,7 @@ function BookForm() {
             return (
               <DatePicker
                 className="input"
-                dateFormat="dd/MMM/yyyy h:mm aa"
+                dateFormat="dd/MM/yyyy"
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 showTimeSelect

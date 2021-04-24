@@ -14,21 +14,42 @@ function BookList() {
       console.log(e);
     }
   };
-  const getAge = (time) => {
-    const today = new Date();
-    const birthDay = new Date(time);
-    const age = today.getUTCFullYear() - birthDay.getUTCFullYear();
-    if (birthDay.getMonth < today.getMonth()) {
-      return age;
-    } else if (birthDay.getMonth() === today.getMonth()) {
-      if (birthDay.getDay() < today.getDay()) {
-        return age;
-      } else return age - 1;
-    } else return age - 1;
-  };
   useEffect(() => {
     fetchBooks();
   }, []);
+
+  const handleRemove = async ({ _id }) => {
+    const newBooks = books.filter((book) => book._id !== _id);
+
+    try {
+      await axios.delete(`/book/${_id}`);
+      setBooks(newBooks);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleOnClick = async (bookEdit) => {
+    const isVaccinated = true;
+    const newBooks = books.map((book) => {
+      if (book._id === bookEdit._id) {
+        return {
+          ...book,
+          isVaccinated,
+        };
+      }
+
+      return book;
+    });
+
+    try {
+      await axios.put(`/book/${bookEdit._id}`, { ...bookEdit, isVaccinated });
+      setBooks(newBooks);
+      console.log(bookEdit.isVaccinated);
+    } catch (e) {
+      console.error(e.message);
+    }
+  };
 
   return (
     <div>
@@ -36,7 +57,6 @@ function BookList() {
         <thead>
           <tr>
             <th>Nome</th>
-            <th>Idade</th>
             <th>Data</th>
             <th>Horário</th>
             <th></th>
@@ -47,19 +67,27 @@ function BookList() {
             <tr key={index}>
               <td>{book.name}</td>
               <td>
-                {book.birthDay.split("-")[2].slice(0, 2)}/
-                {book.birthDay.split("-")[1]}/{book.birthDay.split("-")[0]}
-              </td>
-              <td>
                 {book.date.split("-")[2].slice(0, 2)}/{book.date.split("-")[1]}/
                 {book.date.split("-")[0]}
               </td>
               <td>{book.date.split("-")[2].slice(3, 8)}</td>
               <td>
-                <Button color="success" className="btn-box">
-                  Atendido
-                </Button>
-                <Button color="danger">Faltou</Button>
+                {book.isVaccinated ? (
+                  <div>vacinado</div>
+                ) : (
+                  <div>
+                    <Button
+                      color="success"
+                      onClick={() => handleOnClick(book)}
+                      className="btn-box"
+                    >
+                      Atendido
+                    </Button>
+                    <Button color="danger" onClick={() => handleRemove(book)}>
+                      Faltou
+                    </Button>
+                  </div>
+                )}
               </td>
             </tr>
           ))}

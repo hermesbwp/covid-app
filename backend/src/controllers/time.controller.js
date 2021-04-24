@@ -1,6 +1,24 @@
 const { TimeModel } = require('../models/time.model');
-
+//8 da manha
+const initHour = 28800000;
+//15 minutos
+const timeInterval = 900000;
+//18 horas
+const finalHour = 36000000;
 class Time {
+    async deleteAll(req, res) {
+        try {
+            const times = await TimeModel.find();
+            times.map((time) => {
+                time.remove();
+            })
+            res.send({ message: "todos registros de horarios deletados" })
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
     async index(req, res) {
         try {
             const time = await TimeModel.find().sort([['date', 1]]);
@@ -10,6 +28,7 @@ class Time {
             res.status(400).json({ message: "An unexpected error happend" });
         }
     }
+
 
     async getOne(req, res) {
         const { id } = req.params;

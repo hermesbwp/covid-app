@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const BookShema = new mongoose.Schema({
     name: String,
-    birthDay: Date,
-    date: Date
+    date: Date,
+    isRetired: Boolean,
+    isVaccinated: Boolean
 }, {
     timestamps: true
 });
